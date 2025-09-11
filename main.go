@@ -1,8 +1,9 @@
 package main
 
 import (
-	"tutorial/controller"
 	"tutorial/config"
+	"tutorial/controller"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,5 +15,5 @@ func main() {
 	r := gin.Default()
 	controller.SetupRouter(r)
 
-	r.Run("project run on port: " + cfg.Port)
+	r.Run(":" + cfg.Port)
 }

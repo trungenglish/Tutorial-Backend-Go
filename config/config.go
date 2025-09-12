@@ -3,12 +3,17 @@ package config
 import (
 	"log"
 	"os"
+
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Port string
-	
+	Port       string
+	DBHost     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBPort     string
 }
 
 func InitConfig() *Config {
@@ -18,8 +23,12 @@ func InitConfig() *Config {
 	}
 
 	return &Config{
-		Port:   getEnv("PORT", "8080"),
-		
+		Port:       getEnv("PORT", "8080"),
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "tutorial"),
+		DBPort:     getEnv("DB_PORT", "5432"),
 	}
 
 }

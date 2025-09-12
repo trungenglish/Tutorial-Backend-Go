@@ -3,6 +3,7 @@ package main
 import (
 	"tutorial/config"
 	"tutorial/controller"
+	"tutorial/service/db"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +11,9 @@ import (
 func main() {
 	//config
 	cfg := config.InitConfig()
+
+	//connect to database
+	db.ConnectDB(cfg)
 
 	//route
 	r := gin.Default()

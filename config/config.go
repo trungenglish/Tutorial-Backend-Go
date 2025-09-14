@@ -14,6 +14,7 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	DBPort     string
+	DBURL      string
 }
 
 func InitConfig() *Config {
@@ -29,6 +30,7 @@ func InitConfig() *Config {
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 		DBName:     getEnv("DB_NAME", "tutorial"),
 		DBPort:     getEnv("DB_PORT", "5432"),
+		DBURL:      getEnv("DB_URL", ""),
 	}
 
 }

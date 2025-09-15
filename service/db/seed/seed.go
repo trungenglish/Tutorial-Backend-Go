@@ -52,7 +52,7 @@ func SeedMovies(db *gorm.DB) error {
 		db.Create(&movie)
 
 		i++
-		if i > 100 {
+		if i > 100000 {
 			break
 		}
 	}

@@ -43,3 +43,27 @@ func searchMovies(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, movies)
 }
+
+func getMoviesOffset(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "10"))
+
+	movies, err := db.GetMoviesOffset(page, size)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, movies)
+}
+
+func GetMoviesCursor(c *gin.Context) {
+	cursor, _ := strconv.Atoi(c.DefaultQuery("cursor", "0"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "10"))
+	movies, err := db.GetMoviesCursor(uint(cursor), size)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, movies)
+}

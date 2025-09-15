@@ -26,3 +26,20 @@ func SearchMovies(q string, year int) ([]model.Movies, error) {
 	err := query.Find(&movies).Error
 	return movies, err
 }
+
+func GetMoviesOffset(page, pageSize int) ([]model.Movies, error) {
+	var movies []model.Movies
+	offset := (page - 1) * pageSize
+	result := DB.Limit(pageSize).Offset(offset).Find(&movies)
+	return movies, result.Error
+}
+
+func GetMoviesCursor(cursorID uint, pageSize int) ([]model.Movies, error) {
+	var movies []model.Movies
+	query := DB.Limit(pageSize).Order("id ASC")
+	if cursorID > 0 {
+		query = query.Where("id > ?", cursorID)
+	}
+	result := query.Find(&movies)
+	return movies, result.Error
+}

@@ -3,9 +3,9 @@ package main
 import (
 	"tutorial/config"
 	"tutorial/controller"
-	"tutorial/service/ logger"
 	"tutorial/service/cache"
 	"tutorial/service/db"
+	"tutorial/service/logger"
 	"tutorial/service/metrics"
 
 	"github.com/gin-gonic/gin"

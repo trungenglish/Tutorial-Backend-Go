@@ -1,16 +1,74 @@
 package db
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"tutorial/model"
+	"tutorial/service/cache"
+
+	"github.com/bradfitz/gomemcache/memcache"
+	"gorm.io/gorm"
 )
 
 func CreateMovie(movie *model.Movies) error {
-	return DB.Create(movie).Error
+	result := DB.Create(movie)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// Invalidate cache (xóa cache list movies hoặc liên quan)
+	cache.Client.Delete(fmt.Sprintf("movie:%d", movie.ID))
+	log.Println("🗑️ Cache invalidated for movie", movie.ID)
+
+	return nil
 }
 
 func GetMovieById(id uint) (*model.Movies, error) {
+	cacheKey := fmt.Sprintf("movie:%d", id)
+
+	// 1. Kiểm tra cache
+	item, err := cache.Client.Get(cacheKey)
+
+	if err == nil {
+		if string(item.Value) == "null" {
+			log.Println("✅ Cache hit (negative)")
+			return nil, gorm.ErrRecordNotFound
+		}
+
+		log.Println("✅ Cache hit")
+		var movie model.Movies
+		json.Unmarshal(item.Value, &movie)
+		return &movie, nil
+	}
+	if err == memcache.ErrCacheMiss {
+		log.Println("❌ Cache miss")
+	} else {
+		log.Println("⚠️ Cache error:", err)
+	}
+
+	// 2. Nếu cache miss → query DB
 	var movie model.Movies
 	result := DB.First(&movie, id)
+
+	if result.Error != nil {
+		// Negative cache (not found)
+		cache.Client.Set(&memcache.Item{
+			Key:        cacheKey,
+			Value:      []byte("null"),
+			Expiration: 30, // TTL 30s
+		})
+		return nil, result.Error
+	}
+
+	// 3. Lưu vào cache (TTL 5 phút)
+	data, _ := json.Marshal(movie)
+	cache.Client.Set(&memcache.Item{
+		Key:        cacheKey,
+		Value:      data,
+		Expiration: 300, // TTL 5 phút
+	})
+
 	return &movie, result.Error
 }
 

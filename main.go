@@ -5,6 +5,8 @@ import (
 	"tutorial/controller"
 	"tutorial/service/cache"
 	"tutorial/service/db"
+	"tutorial/service/logger"
+	"tutorial/service/metrics"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +14,12 @@ import (
 func main() {
 	//config
 	cfg := config.InitConfig()
+
+	// init logger
+	logger.InitLogger()
+
+	// init metrics
+	metrics.InitMetrics()
 
 	//connect to database
 	db.ConnectDB(cfg)

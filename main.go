@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"tutorial/config"
 	"tutorial/controller"
 	"tutorial/service/cache"
 	"tutorial/service/db"
 	"tutorial/service/logger"
 	"tutorial/service/metrics"
+	"tutorial/service/tracing"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +22,10 @@ func main() {
 
 	// init metrics
 	metrics.InitMetrics()
+
+	// init tracing
+	cleanup := tracing.InitTracer(context.Background(), cfg)
+	defer cleanup()
 
 	//connect to database
 	db.ConnectDB(cfg)

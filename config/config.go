@@ -8,17 +8,14 @@ import (
 )
 
 type Config struct {
-	Port                 string
-	DBHost               string
-	DBUser               string
-	DBPassword           string
-	DBName               string
-	DBPort               string
-	DBUrl                string
-	MemcachedAddr        string
-	GrafanaTempoEndpoint string
-	GrafanaTempoUsername string
-	GrafanaTempoApikey   string
+	Port          string
+	DBHost        string
+	DBUser        string
+	DBPassword    string
+	DBName        string
+	DBPort        string
+	DBUrl         string
+	MemcachedAddr string
 }
 
 func InitConfig() *Config {
@@ -28,17 +25,14 @@ func InitConfig() *Config {
 	}
 
 	return &Config{
-		Port:                 getEnv("PORT", "8080"),
-		DBHost:               getEnv("DB_HOST", "localhost"),
-		DBUser:               getEnv("DB_USER", "postgres"),
-		DBPassword:           getEnv("DB_PASSWORD", "postgres"),
-		DBName:               getEnv("DB_NAME", "tutorial"),
-		DBPort:               getEnv("DB_PORT", "5432"),
-		DBUrl:                getEnv("DB_URL", ""),
-		MemcachedAddr:        getEnv("MEMCACHED_ADDR", "localhost:11211"),
-		GrafanaTempoEndpoint: getEnv("GRAFANA_TEMPO_ENDPOINT", ""),
-		GrafanaTempoUsername: getEnv("GRAFANA_TEMPO_USERNAME", "admin"),
-		GrafanaTempoApikey:   getEnv("GRAFANA_TEMPO_APIKEY", ""),
+		Port:          getEnv("PORT", "8080"),
+		DBHost:        getEnv("DB_HOST", "localhost"),
+		DBUser:        getEnv("DB_USER", "postgres"),
+		DBPassword:    getEnv("DB_PASSWORD", "postgres"),
+		DBName:        getEnv("DB_NAME", "tutorial"),
+		DBPort:        getEnv("DB_PORT", "5432"),
+		DBUrl:         getEnv("DB_URL", ""),
+		MemcachedAddr: getEnv("MEMCACHED_ADDR", "localhost:11211"),
 	}
 
 }

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -10,6 +11,8 @@ import (
 	"tutorial/service/metrics"
 
 	"github.com/bradfitz/gomemcache/memcache"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
 )
 
@@ -37,7 +40,7 @@ func CreateMovie(movie *model.Movies) error {
 	return nil
 }
 
-func GetMovieById(id uint) (*model.Movies, error) {
+func GetMovieById(ctx context.Context, id uint) (*model.Movies, error) {
 	cacheKey := fmt.Sprintf("movie:%d", id)
 
 	// 1. Kiểm tra cache
@@ -45,15 +48,17 @@ func GetMovieById(id uint) (*model.Movies, error) {
 
 	if err == nil {
 		if string(item.Value) == "null" {
-			logger.Log.Info().
+			logger.Info(ctx).
 				Uint("movie_id", id).
+				Str("cache_key", cacheKey).
 				Msg("✅ Cache hit (negative)")
 			metrics.CacheHitTotal.Inc()
 			return nil, gorm.ErrRecordNotFound
 		}
 
-		logger.Log.Info().
+		logger.Info(ctx).
 			Uint("movie_id", id).
+			Str("cache_key", cacheKey).
 			Msg("✅ Cache hit")
 		metrics.CacheHitTotal.Inc()
 
@@ -61,19 +66,27 @@ func GetMovieById(id uint) (*model.Movies, error) {
 		json.Unmarshal(item.Value, &movie)
 		return &movie, nil
 	}
+
 	if err == memcache.ErrCacheMiss {
-		logger.Log.Warn().
+		logger.Warn(ctx).
 			Uint("movie_id", id).
+			Str("cache_key", cacheKey).
 			Msg("❌ Cache miss")
 		metrics.CacheMissTotal.Inc()
 	} else {
-		logger.Log.Error().
+		logger.Error(ctx).
 			Err(err).
 			Str("cache_key", cacheKey).
 			Msg("⚠️ Cache error")
 	}
 
 	// 2. Nếu cache miss → query DB
+	span := trace.SpanFromContext(ctx)
+	span.SetName("db.get_movie_by_id")
+	span.SetAttributes(
+		attribute.Int("movie.id", int(id)),
+	)
+
 	start := time.Now()
 	var movie model.Movies
 	result := DB.First(&movie, id)
@@ -87,8 +100,10 @@ func GetMovieById(id uint) (*model.Movies, error) {
 			Value:      []byte("null"),
 			Expiration: 30, // TTL 30s
 		})
-		logger.Log.Warn().
+		logger.Warn(ctx).
 			Uint("movie_id", id).
+			Err(result.Error).
+			Float64("db_duration_seconds", duration).
 			Msg("Movie not found, cached as null")
 		return nil, result.Error
 	}
@@ -100,8 +115,9 @@ func GetMovieById(id uint) (*model.Movies, error) {
 		Value:      data,
 		Expiration: 300, // TTL 5 phút
 	})
-	logger.Log.Info().
+	logger.Info(ctx).
 		Uint("movie_id", movie.ID).
+		Float64("db_duration_seconds", duration).
 		Msg("Movie cached for 5 minutes")
 
 	return &movie, result.Error

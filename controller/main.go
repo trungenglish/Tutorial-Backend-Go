@@ -12,6 +12,7 @@ func SetupRouter(r *gin.Engine) {
 	//middleware
 	r.Use(metrics.PrometheusMiddleware())
 	r.Use(otelgin.Middleware("tutorial-service"))
+	//r.Use(logger.TraceLoggingMiddleware())
 
 	//route healthz
 	r.GET("/healthz", Healthz)

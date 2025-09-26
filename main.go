@@ -24,7 +24,7 @@ func main() {
 	metrics.InitMetrics()
 
 	// init tracing
-	cleanup := tracing.InitTracer(context.Background(), cfg)
+	cleanup := tracing.InitTracer(context.Background())
 	defer cleanup()
 
 	//connect to database

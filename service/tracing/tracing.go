@@ -3,7 +3,6 @@ package tracing
 import (
 	"context"
 	"log"
-	"tutorial/config"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -14,9 +13,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 )
 
-func InitTracer(ctx context.Context, cfg *config.Config) func() {
-
-	//auth := base64.StdEncoding.EncodeToString([]byte(cfg.GrafanaTempoUsername + ":" + cfg.GrafanaTempoApikey))
+func InitTracer(ctx context.Context) func() {
 
 	exporter, err := otlptrace.New(ctx, otlptracehttp.NewClient())
 	if err != nil {

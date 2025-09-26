@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"tutorial/model"
 	"tutorial/service/db"
+	"tutorial/service/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,12 +24,27 @@ func createMovies(c *gin.Context) {
 }
 
 func getMoviesById(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idParam, _ := strconv.Atoi(c.Param("id"))
-	movie, err := db.GetMovieById(uint(idParam))
+
+	logger.Info(ctx).
+		Uint("movie_id", uint(idParam)).
+		Msg("Getting movie by ID")
+
+	movie, err := db.GetMovieById(ctx, uint(idParam))
 	if err != nil {
+		logger.Error(ctx).
+			Err(err).
+			Uint("movie_id", uint(idParam)).
+			Msg("Movie not found")
 		c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 		return
 	}
+
+	logger.Info(ctx).
+		Uint("movie_id", movie.ID).
+		Msg("Movie retrieved successfully")
 	c.JSON(http.StatusOK, movie)
 }
 

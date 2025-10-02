@@ -162,6 +162,63 @@ Thư mục `k8s/` được tổ chức thành các sub-folder để dễ quản 
 
 ---
 
+# Các lệnh debug cần thiết khi chạy pod
+
+Khi triển khai ứng dụng lên Kubernetes, bạn có thể sử dụng các lệnh sau để kiểm tra, debug và xác định nguyên nhân lỗi:
+
+## 1. Kiểm tra trạng thái pod, service, deployment
+```bash
+kubectl get pods
+kubectl get svc
+kubectl get deployment
+```
+
+## 2. Xem log của pod
+```bash
+kubectl logs <tên-pod>
+```
+Ví dụ:
+```bash
+kubectl logs tutorial-backend-xxxxxx
+```
+
+## 3. Xem chi tiết pod (mô tả, sự kiện, probe, env, volume, ...)
+```bash
+kubectl describe pod <tên-pod>
+```
+
+## 4. Kiểm tra trạng thái các resource khác
+```bash
+kubectl get configmap
+kubectl get secret
+kubectl get pvc
+```
+
+## 5. Truy cập shell vào bên trong pod để kiểm tra trực tiếp
+```bash
+kubectl exec -it <tên-pod> -- /bin/sh
+```
+Hoặc với container có bash:
+```bash
+kubectl exec -it <tên-pod> -- /bin/bash
+```
+
+## 6. Kiểm tra port-forward để test service từ local
+```bash
+kubectl port-forward svc/<tên-service> <port-local>:<port-service>
+```
+Ví dụ:
+```bash
+kubectl port-forward svc/tutorial-service 8080:80
+```
+
+## 7. Kiểm tra event toàn cluster (xem lỗi scheduling, image pull, ...)
+```bash
+kubectl get events --sort-by=.metadata.creationTimestamp
+```
+
+---
+
 # Tham khảo
 - [Kubernetes Docs](https://kubernetes.io/docs/)
 - [Best practices for managing Kubernetes secrets](https://kubernetes.io/docs/concepts/configuration/secret/)

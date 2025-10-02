@@ -1,2 +1,10 @@
-service.yml
-deployment.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tutorial-postgres
+spec:
+  selector:
+    app: tutorial-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

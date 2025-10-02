@@ -14,7 +14,6 @@ type Config struct {
 	DBPassword    string
 	DBName        string
 	DBPort        string
-	DBUrl         string
 	MemcachedAddr string
 }
 
@@ -31,7 +30,6 @@ func InitConfig() *Config {
 		DBPassword:    getEnv("DB_PASSWORD", "postgres"),
 		DBName:        getEnv("DB_NAME", "tutorial"),
 		DBPort:        getEnv("DB_PORT", "5432"),
-		DBUrl:         getEnv("DB_URL", ""),
 		MemcachedAddr: getEnv("MEMCACHED_ADDR", "localhost:11211"),
 	}
 

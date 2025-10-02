@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tutorial-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tutorial-memcached
+  template:
+    metadata:
+      labels:
+        app: tutorial-memcached
+    spec:
+      containers:
+        - name: memcached
+          image: memcached:1.6
+          ports:
+            - containerPort: 11211

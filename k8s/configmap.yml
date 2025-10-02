@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tutorial-config
+data:
+  DB_HOST: "tutorial-postgres"
+  DB_PORT: "5432"
+  MEMCACHED_ADDR: "tutorial-memcached:11211"
+  OTEL_RESOURCE_ATTRIBUTES: "service.name=tutorial-backend,service.namespace=my-application-group"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp-gateway-prod-ap-southeast-1.grafana.net/otlp"

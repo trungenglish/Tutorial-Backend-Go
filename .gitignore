@@ -42,3 +42,4 @@ go.work
 ehthumbs.db
 Thumbs.db
 service/db/seed/title.basics.tsv
+k8s/secret.yml

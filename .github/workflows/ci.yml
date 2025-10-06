@@ -57,5 +57,14 @@ jobs:
             sleep 3
           done
 
+      - name: Install golang-migrate
+        run: |
+          go install -v github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+          echo "export PATH=\"$PATH:$(go env GOPATH)/bin\"" >> $GITHUB_ENV
+
+      - name: Run migrations
+        run: |
+          migrate -path ./service/db/migrations -database "postgres://postgres:postgres@localhost:5432/tutorial?sslmode=disable" up
+
       - name: Run tests
         run: go test -v ./test

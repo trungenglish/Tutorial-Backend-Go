@@ -33,9 +33,9 @@ jobs:
     env:
       DB_HOST: localhost
       DB_PORT: 5432
-      DB_USER: tester
-      DB_PASSWORD: 123456
-      DB_NAME: test_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: tutorial
       CACHE_HOST: localhost
       CACHE_PORT: 11211
 

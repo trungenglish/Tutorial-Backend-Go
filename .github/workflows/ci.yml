@@ -1,17 +1,61 @@
-name: CI
+name: CI Integration Test
+
 on:
   push:
-    branches: ["feature/**", "main"]
+    branches: ["main", "feature/**"]
   pull_request:
     branches: ["main"]
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: tester
+          POSTGRES_PASSWORD: 123456
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      memcached:
+        image: memcached:alpine
+        ports:
+          - 11211:11211
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: tester
+      DB_PASSWORD: 123456
+      DB_NAME: test_db
+      CACHE_HOST: localhost
+      CACHE_PORT: 11211
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Go
-        uses: actions/checkout@v5
+        uses: actions/setup-go@v5
         with:
           go-version: 'stable'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Wait for DB to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 3
+          done
+
       - name: Run tests
         run: go test ./... -v

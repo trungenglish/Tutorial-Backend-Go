@@ -20,7 +20,7 @@ type Config struct {
 func InitConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("⚠️ Không tìm thấy file .env, dùng biến môi trường hệ thống.")
+		log.Println("⚠️ Không tìm thấy file .env, dùng biến môi trường hệ thống.", err)
 	}
 
 	return &Config{

@@ -20,7 +20,7 @@ func createMovies(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, movie)
+	c.JSON(http.StatusCreated, movie)
 }
 
 func getMoviesById(c *gin.Context) {

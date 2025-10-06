@@ -8,7 +8,9 @@ import (
 	"tutorial/service/metrics"
 )
 
-func SetupRouter(r *gin.Engine) {
+func SetupRouter() *gin.Engine {
+	r := gin.Default()
+
 	//middleware
 	r.Use(metrics.PrometheusMiddleware())
 	r.Use(otelgin.Middleware("tutorial-service"))
@@ -27,4 +29,11 @@ func SetupRouter(r *gin.Engine) {
 	//metrics
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
+	return r
 }
+
+//func SetupRouterTest() *gin.Engine {
+//
+//	SetupRouter(r)
+//
+//}

@@ -57,10 +57,10 @@ jobs:
             sleep 3
           done
 
-      - name: Install golang-migrate
+      - name: Download migrate CLI
         run: |
-          go install -v github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-          echo "export PATH=\"$PATH:$(go env GOPATH)/bin\"" >> $GITHUB_ENV
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/
 
       - name: Run migrations
         run: |

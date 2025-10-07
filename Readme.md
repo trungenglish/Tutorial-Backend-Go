@@ -1,97 +1,69 @@
-# Tutorial Backend
+# Hướng dẫn chạy ứng dụng
 
-## Kiến trúc 3 lớp (3-Layer Architecture)
-
-### Controller (Presentation)
-- Nhận request, xử lý nghiệp vụ và trả về response
-- Chịu trách nhiệm cho việc xác thực và phân quyền
-- Chuyển đổi dữ liệu giữa DTO (Data Transfer Objects) và model
-
-### Model
-- Chứa data model của service
-- Định nghĩa các entity và mối quan hệ giữa chúng
-- Chứa các method để validate dữ liệu
-
-### Service
-- Tương tác với cơ sở dữ liệu (ví dụ: PostgreSQL, MongoDB, Redis)
-- Tích hợp với dịch vụ bên thứ ba (Twilio, email,...)
-- Gọi đến các service khác trong hệ thống microservice
-
-## Cấu trúc thư mục của HTTP API
-
-```
-/config
-    config.go           # Cấu hình và biến môi trường
-/controller
-    main.go            # Định nghĩa router
-    [resource].go      # Controller cho mỗi resource
-    dto.go             # Data Transfer Objects
-/model
-    [resource].go      # Model cho mỗi resource
-/service
-    db/                # Tương tác với database
-        [resource].go  # Repository cho mỗi resource
-        db.go          # Khởi tạo kết nối DB
-    [external].go      # Tích hợp với dịch vụ bên ngoài
-main.go               # Entry point của ứng dụng
-```
-
-## Nguyên tắc thiết kế
-
-1. **Dependency Rule**: Các lớp chỉ nên phụ thuộc vào lớp bên dưới hoặc các thư viện bên ngoài, không nên phụ thuộc vào lớp cùng cấp hoặc lớp trên
-
-2. **Data Flow**: Luồng dữ liệu nên đi từ Controller → Service → Model và ngược lại
-
-3. **DTO Usage**: DTO (Data Transfer Objects) chỉ nên được sử dụng ở lớp Controller, không nên truyền DTO xuống lớp Service hoặc Model
-
-## Hướng dẫn sử dụng golang-migrate để tạo và chạy migration
-
-### 1. Cài đặt golang-migrate
-
-Bạn có thể cài đặt golang-migrate CLI bằng các cách sau:
+## 1. Cài đặt các phụ thuộc
 
 ```sh
-# Cài đặt bằng Go (yêu cầu Go đã cài đặt)
-go install -v github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
-# Trên Windows (sử dụng scoop)
-scoop install migrate
-
-# Trên MacOS (sử dụng brew)
-brew install migrate
-
-# Hoặc tải trực tiếp từ https://github.com/golang-migrate/migrate/releases
+go mod tidy
 ```
 
-Sau khi cài bằng go install, file thực thi migrate sẽ nằm ở thư mục $GOPATH/bin hoặc $HOME/go/bin. Bạn cần thêm thư mục này vào PATH để sử dụng lệnh migrate ở mọi nơi.
+## 2. Thiết lập biến môi trường
 
-### 2. Tạo file migrate mới
+- Tạo file `.env` hoặc export biến môi trường cần thiết (xem ví dụ trong `config/config.go` hoặc file `.env.example` nếu có).
 
-Sử dụng lệnh sau để tạo file migrate:
+## 3. Chạy database (Postgres, Memcached...)
+
+- Có thể dùng Docker Compose hoặc tự chạy từng service:
 
 ```sh
-migrate create -ext sql -dir ./migrations -seq ten_migration
+docker-compose up -d
 ```
 
-- `-ext sql`: Định dạng file là .sql
-- `-dir ./migrations`: Thư mục chứa các file migrate
-- `-seq`: Tạo file với số thứ tự tăng dần
-- `ten_migration`: Tên migration (ví dụ: create_users_table)
-
-Sau khi chạy lệnh, bạn sẽ có 2 file:
-- `xxxxxx_ten_migration.up.sql`: Chứa câu lệnh để migrate lên
-- `xxxxxx_ten_migration.down.sql`: Chứa câu lệnh để rollback
-
-### 3. Chạy migrate
-
-Nếu bạn đã export/set biến môi trường DATABASE_URL thủ công trong shell, bạn có thể dùng lệnh migrate như sau:
+- Hoặc chạy từng container:
 
 ```sh
-$env:DB_URL="postgres://user:pass@localhost:5432/tutorial-go?sslmode=disable"
-migrate -path ./service/db/migrations -database $env:DB_URL up
-
+docker run --name tutorial-postgres -e POSTGRES_PASSWORD=yourpassword -e POSTGRES_DB=tutorial -p 5432:5432 -d postgres:15
 ```
 
-> **Lưu ý:** migrate CLI không tự động đọc file .env, nên nếu muốn dùng biến môi trường từ file .env, bạn cần dùng dotenv CLI hoặc nạp biến vào shell trước.
+## 4. Chạy migrate database
 
-Tham khảo thêm tại: https://github.com/golang-migrate/migrate
+- Xem hướng dẫn chi tiết trong `docs/migrate.md`.
+
+## 5. Chạy ứng dụng
+
+```sh
+go run main.go
+```
+
+## 6. Truy cập API
+
+- Mặc định ứng dụng chạy ở port 3000 hoặc 8080 (tùy cấu hình). Truy cập các endpoint như:
+  - `GET /healthz`
+  - `GET /movies/:id`
+  - `POST /movies`
+  - ...
+
+## 7. Chạy test
+
+```sh
+go test -v ./test
+```
+
+## 8. Build Docker image (nếu cần)
+
+```sh
+docker build -t tutorial-backend:latest .
+```
+
+## 9. Triển khai với Kubernetes
+
+- Xem hướng dẫn chi tiết trong `docs/k8s.md`.
+
+---
+
+## Tham khảo
+- Kiến trúc: `docs/architecture.md`
+- Migration: `docs/migrate.md`
+- Caching: `docs/Caching_Memcached.md`
+- Logging & Metrics: `docs/Logging_Metrics.md`
+- Paging: `docs/Paging.md`
+- Test API: `docs/test_movies_api.md`

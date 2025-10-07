@@ -9,8 +9,6 @@ import (
 	"tutorial/service/logger"
 	"tutorial/service/metrics"
 	"tutorial/service/tracing"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -38,8 +36,7 @@ func main() {
 	//}
 
 	//route
-	r := gin.Default()
-	controller.SetupRouter(r)
+	r := controller.SetupRouter()
 
 	r.Run(":" + cfg.Port)
 }
